@@ -1,16 +1,18 @@
-import sys
-import os
-import re
+import sys, os, re
 import titlecase
+
 
 def clean_issue(source):
     return source.lstrip('0')
 
+
 def clean_title(source):
     return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
 
+
 #def issue_is_valid(issue):
 #    return str.isdigit(issue)
+
 
 # todo: allow script to run in interactive mode
 # Interactive mode would let the user provide a simple y/n answer
@@ -19,9 +21,7 @@ def clean_title(source):
 folder_name = sys.argv[1]
 print folder_name
 
-is_directory = os.path.isdir(folder_name)
-
-if not is_directory:
+if not os.path.isdir(folder_name):
     print "Parameter must be a directory"
     quit()
 
@@ -46,4 +46,3 @@ for filename in directory_list:
             print "Found Title: %s" % title
 
         print ""
-
