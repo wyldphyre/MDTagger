@@ -66,16 +66,29 @@ for filename in directory_list:
         print "Processing: %s" % filename
 
         # look for the issue number and title
+        filename_issue = ""
+        filename_title = ""
+
         match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
         if match:
             filename_issue = match.group(1)
             filename_title = match.group(2)
 
-            filename_issue = clean_filename_issue(filename_issue)
-            filename_title = clean_filename_title(filename_title)
+        else:
+            match = re.search('\.c?(\d*)\.cbz|cbr', filename)
+            if match:
+                filename_issue = match.group(1);
 
-            print "Found Issue: %s" % filename_issue
-            print "Found Title: %s" % filename_title
+        if not match:
+            print "Could not locate a title or issue number in: %s" % filename
+        else:
+            if filename_issue != "":
+                filename_issue = clean_filename_issue(filename_issue)
+                print "Found Issue: %s" % filename_issue
+
+            if filename_title != "":
+                filename_title = clean_filename_title(filename_title)
+                print "Found Title: %s" % filename_title
 
             # todo: check existing tags and report/skip if there is no work to do
             # command = '%s -p %s' % (COMIC_TAGGER_PATH, escape_spaces(full_file_path))
@@ -84,11 +97,13 @@ for filename in directory_list:
             answer = raw_input("Update tags for this file? (y/n): ")
 
             if answer == "y":
-                command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escape_for_comictagger(filename_title), filename_issue, escape_for_shell(full_file_path))
+                if filename_issue != "" and filename_title != "":
+                    command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escape_for_comictagger(filename_title), filename_issue, escape_for_shell(full_file_path))
+                elif filename_issue != "":
+                    command = '%s -s -m "issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, filename_issue, escape_for_shell(full_file_path))
+
                 return_code = subprocess.call(command, shell=True)
                 # if return_code != 0:
                 #     print "Return code: %s" % return_code
-        else:
-            print "Could not locate a title and issue number in: %s" % filename
 
         print ""
