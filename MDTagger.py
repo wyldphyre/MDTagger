@@ -31,7 +31,14 @@ def clean_title(source):
 
 
 def show_help():
-    print 'Help goes here'
+    # print 'Usage: ComicTagger [OPTION]... [FOLDER]'
+    print ''
+    print 'Usage: ComicTagger [FOLDER]'
+    print ''
+    print 'A utility for detecting Issue and Titles from comic archives downloaded with manga_downloader (https://github.com/jiaweihli/manga_downloader), then inserting that information into the archive using ComicTagger'
+    print ''
+    print 'The name of all files in the specified folder will be examined for issue number and title and then the user is asked if the data should be inserted'
+    print ''
 
 #def issue_is_valid(issue):
 #    return str.isdigit(issue)
@@ -48,7 +55,6 @@ if len(arguments) < 2:  # the sys.argv[0] contains the script name, so there is 
     quit()
 
 folder_name = arguments[1]
-print folder_name
 
 if not os.path.isdir(folder_name):
     print "Parameter must be a folder"
