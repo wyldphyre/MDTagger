@@ -11,6 +11,7 @@ import titlecase
 
 # COMIC_TAGGER_PATH = 'COMIC_TAGGER_PATH/Applications/ComicTagger.app/Contents/MacOS/ComicTagger'
 COMIC_TAGGER_PATH = 'ComicTagger'  # and alias that points to the full path above
+HANDLED_EXTENSIONS = ['.cbr', '.cbz']
 
 
 def cleanFilenameIssue(source):
@@ -44,8 +45,16 @@ def outputHelp():
     print ''
 
 
-def processFile(target_filename):
-    assert isinstance(target_filename, str)
+def processFile(target_file_path):
+    assert isinstance(target_file_path, str)
+
+    # check that file is a comic archive
+    target_filename = os.path.split(target_file_path)[1]
+    file_extension = os.path.splitext(target_file_path)[1]
+
+    if not file_extension in HANDLED_EXTENSIONS:
+        print "Skipping %s. Not a comic archive" % target_filename
+        return
 
     print "Processing: %s" % target_filename
 
@@ -81,7 +90,7 @@ def processFile(target_filename):
 
         if answer == "y":
             metadata_statement = produceComicTaggerMetaDataStatement(filename_issue, filename_title)
-            command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(full_file_path))
+            command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(target_file_path))
 
             return_code = subprocess.call(command, shell=True)
             if return_code != 0:
@@ -92,7 +101,7 @@ def processFile(target_filename):
 def produceComicTaggerMetaDataStatement(issue, title):
     assert isinstance(issue, str)
     assert isinstance(title, str)
-    
+
     tags = []
 
     if issue != "":
@@ -112,16 +121,16 @@ if len(arguments) < 2:  # the sys.argv[0] contains the script name, so there is 
     outputHelp()
     quit()
 
-folder_name = arguments[1]
+supplied_path = arguments[1]
 
-if not os.path.isdir(folder_name):
-    print "Parameter must be a folder"
-    quit()
+if os.path.isdir(supplied_path):
+    directory_list = os.listdir(supplied_path)
 
-directory_list = os.listdir(folder_name)
+    for filename in directory_list:
+        full_file_path = os.path.join(supplied_path, filename)
 
-for filename in directory_list:
-    full_file_path = os.path.join(folder_name, filename)
+        if os.path.isfile(full_file_path):
+            processFile(full_file_path)
 
-    if os.path.isfile(full_file_path):
-        processFile(filename)
+elif os.path.isfile(supplied_path):
+    processFile(supplied_path)
