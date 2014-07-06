@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+# Permission denied when running the script in the shell? chmod 755 the script .py file
+
 import sys
 import os
 import re
@@ -26,6 +30,9 @@ def clean_title(source):
     return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
 
 
+def show_help():
+    print 'Help goes here'
+
 #def issue_is_valid(issue):
 #    return str.isdigit(issue)
 
@@ -34,7 +41,13 @@ def clean_title(source):
 # Interactive mode would let the user provide a simple y/n answer
 # as to whether each files extracted info should be saved to file
 
-folder_name = sys.argv[1]
+arguments = sys.argv
+
+if len(arguments) < 2:  # the sys.argv[0] contains the script name, so there is always at least one argument
+    show_help()
+    quit()
+
+folder_name = arguments[1]
 print folder_name
 
 if not os.path.isdir(folder_name):
