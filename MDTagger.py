@@ -19,14 +19,17 @@ def cleanFilenameIssue(source):
 
 
 def cleanFilenameTitle(source):
+    assert isinstance(source, str)
     return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
 
 
 def escapeForShell(source):
+    assert isinstance(source, str)
     return source.replace(' ', '\ ').replace('(', '\(').replace(')', '\)')
 
 
 def escapeForComicTagger(source):
+    assert isinstance(source, str)
     return source.replace(',', '^,').replace('=', '^=')
 
 
@@ -42,6 +45,8 @@ def outputHelp():
 
 
 def processFile(target_filename):
+    assert isinstance(target_filename, str)
+
     print "Processing: %s" % target_filename
 
     # look for the issue number and title
@@ -85,6 +90,9 @@ def processFile(target_filename):
 
 
 def produceComicTaggerMetaDataStatement(issue, title):
+    assert isinstance(issue, str)
+    assert isinstance(title, str)
+    
     tags = []
 
     if issue != "":
