@@ -13,7 +13,7 @@ import titlecase
 COMIC_TAGGER_PATH = 'ComicTagger'
 
 
-def clean_issue(source):
+def clean_filename_issue(source):
     assert isinstance(source, str)
     return source.lstrip('0')
 
@@ -26,7 +26,7 @@ def escape_for_comictagger(source):
     return source.replace(',', '^,').replace('=', '^=')
 
 
-def clean_title(source):
+def clean_filename_title(source):
     return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
 
 
@@ -40,13 +40,10 @@ def show_help():
     print 'The name of all files in the specified folder will be examined for issue number and title and then the user is asked if the data should be inserted'
     print ''
 
+
 #def issue_is_valid(issue):
 #    return str.isdigit(issue)
 
-
-# todo: allow script to run in interactive mode
-# Interactive mode would let the user provide a simple y/n answer
-# as to whether each files extracted info should be saved to file
 
 arguments = sys.argv
 
@@ -67,19 +64,18 @@ for filename in directory_list:
 
     if os.path.isfile(full_file_path):
         print "Processing: %s" % filename
+
         # look for the issue number and title
         match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
         if match:
-            issue = match.group(1)
-            title = match.group(2)
+            filename_issue = match.group(1)
+            filename_title = match.group(2)
 
-            issue = clean_issue(issue)
-            title = clean_title(title)
+            filename_issue = clean_filename_issue(filename_issue)
+            filename_title = clean_filename_title(filename_title)
 
-            # todo: validate issue is a clean usable number
-
-            print "Found Issue: %s" % issue
-            print "Found Title: %s" % title
+            print "Found Issue: %s" % filename_issue
+            print "Found Title: %s" % filename_title
 
             # todo: check existing tags and report/skip if there is no work to do
             # command = '%s -p %s' % (COMIC_TAGGER_PATH, escape_spaces(full_file_path))
@@ -88,9 +84,11 @@ for filename in directory_list:
             answer = raw_input("Update tags for this file? (y/n): ")
 
             if answer == "y":
-                command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escape_for_comictagger(title), issue, escape_for_shell(full_file_path))
+                command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escape_for_comictagger(filename_title), filename_issue, escape_for_shell(full_file_path))
                 return_code = subprocess.call(command, shell=True)
                 # if return_code != 0:
                 #     print "Return code: %s" % return_code
+        else:
+            print "Could not locate a title and issue number in: %s" % filename
 
         print ""
