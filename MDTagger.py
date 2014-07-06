@@ -10,27 +10,27 @@ import titlecase
 
 
 # COMIC_TAGGER_PATH = 'COMIC_TAGGER_PATH/Applications/ComicTagger.app/Contents/MacOS/ComicTagger'
-COMIC_TAGGER_PATH = 'ComicTagger'
+COMIC_TAGGER_PATH = 'ComicTagger'  # and alias that points to the full path above
 
 
-def clean_filename_issue(source):
+def cleanFilenameIssue(source):
     assert isinstance(source, str)
     return source.lstrip('0')
 
 
-def escape_for_shell(source):
-    return source.replace(' ', '\ ').replace('(', '\(').replace(')', '\)')
-
-
-def escape_for_comictagger(source):
-    return source.replace(',', '^,').replace('=', '^=')
-
-
-def clean_filename_title(source):
+def cleanFilenameTitle(source):
     return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
 
 
-def show_help():
+def escapeForShell(source):
+    return source.replace(' ', '\ ').replace('(', '\(').replace(')', '\)')
+
+
+def escapeForComicTagger(source):
+    return source.replace(',', '^,').replace('=', '^=')
+
+
+def outputHelp():
     # print 'Usage: ComicTagger [OPTION]... [FOLDER]'
     print ''
     print 'Usage: ComicTagger [FOLDER]'
@@ -48,7 +48,7 @@ def show_help():
 arguments = sys.argv
 
 if len(arguments) < 2:  # the sys.argv[0] contains the script name, so there is always at least one argument
-    show_help()
+    outputHelp()
     quit()
 
 folder_name = arguments[1]
@@ -83,11 +83,11 @@ for filename in directory_list:
             print "Could not locate a title or issue number in: %s" % filename
         else:
             if filename_issue != "":
-                filename_issue = clean_filename_issue(filename_issue)
+                filename_issue = cleanFilenameIssue(filename_issue)
                 print "Found Issue: %s" % filename_issue
 
             if filename_title != "":
-                filename_title = clean_filename_title(filename_title)
+                filename_title = cleanFilenameTitle(filename_title)
                 print "Found Title: %s" % filename_title
 
             # todo: check existing tags and report/skip if there is no work to do
@@ -98,9 +98,9 @@ for filename in directory_list:
 
             if answer == "y":
                 if filename_issue != "" and filename_title != "":
-                    command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escape_for_comictagger(filename_title), filename_issue, escape_for_shell(full_file_path))
+                    command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escapeForComicTagger(filename_title), filename_issue, escapeForShell(full_file_path))
                 elif filename_issue != "":
-                    command = '%s -s -m "issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, filename_issue, escape_for_shell(full_file_path))
+                    command = '%s -s -m "issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, filename_issue, escapeForShell(full_file_path))
 
                 return_code = subprocess.call(command, shell=True)
                 # if return_code != 0:
