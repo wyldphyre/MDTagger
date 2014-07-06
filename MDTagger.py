@@ -75,15 +75,25 @@ def processFile(target_filename):
         answer = raw_input("Update tags for this file? (y/n): ")
 
         if answer == "y":
-            if filename_issue != "" and filename_title != "":
-                command = '%s -s -m "title=%s,issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, escapeForComicTagger(filename_title), filename_issue, escapeForShell(full_file_path))
-            elif filename_issue != "":
-                command = '%s -s -m "issue=%s" -t cr %s' % (COMIC_TAGGER_PATH, filename_issue, escapeForShell(full_file_path))
+            metadata_statement = produceComicTaggerMetaDataStatement(filename_issue, filename_title)
+            command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(full_file_path))
 
             return_code = subprocess.call(command, shell=True)
             if return_code != 0:
                 print "Return code: %s" % return_code
     print ""
+
+
+def produceComicTaggerMetaDataStatement(issue, title):
+    tags = []
+
+    if issue != "":
+        tags.append("issue=%s" % issue)
+
+    if title != "":
+        tags.append("title=%s" % escapeForComicTagger(title))
+
+    return ','.join(tags)
 
 
 # Start of execution
