@@ -45,8 +45,9 @@ def outputHelp():
     print ''
 
 
-def processFile(file_path):
+def processFile(file_path, auto_update):
     assert isinstance(file_path, str)
+    assert isinstance(auto_update, bool)
 
     # check that file is a comic archive
     filename = os.path.split(file_path)[1]
@@ -86,9 +87,9 @@ def processFile(file_path):
         # command = '%s -p %s' % (COMIC_TAGGER_PATH, escape_spaces(full_file_path))
 
         # Ask user for permission to modify
-        answer = raw_input("Update tags for this file? (y/n): ")
+        do_update = auto_update or raw_input("Update tags for this file? (y/n): ") == "y"
 
-        if answer == "y":
+        if do_update:
             metadata_statement = produceComicTaggerMetaDataStatement(filename_issue, filename_title)
             command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
 
@@ -121,19 +122,38 @@ def MDTagger():
         outputHelp()
         quit()
 
-    folder_path = arguments[1]
+    path = ""
+    auto_update = False
 
-    if os.path.isdir(folder_path):
-        directory_list = os.listdir(folder_path)
+    for param in arguments[1:]:
+        if param.startswith('-'):
+            if param == '-a':
+                auto_update = True
+            else:
+                print "Unknown options %s" % param
+                quit()
+        else:
+            if path != "":
+                print "Only one file or folder path can be specified"
+                quit()
+            else:
+                path = param
+
+    if path == "":
+        print "You must specify a file or folder to operate on"
+        quit()
+
+    if os.path.isdir(path):
+        directory_list = os.listdir(path)
 
         for filename in directory_list:
-            file_path = os.path.join(folder_path, filename)
+            file_path = os.path.join(path, filename)
 
             if os.path.isfile(file_path):
-                processFile(file_path)
+                processFile(file_path, auto_update)
 
-    elif os.path.isfile(folder_path):
-        processFile(folder_path)
+    elif os.path.isfile(path):
+        processFile(path, auto_update)
 
 
 # Start of execution
