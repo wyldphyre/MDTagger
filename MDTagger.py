@@ -45,34 +45,34 @@ def outputHelp():
     print ''
 
 
-def processFile(target_file_path):
-    assert isinstance(target_file_path, str)
+def processFile(file_path):
+    assert isinstance(file_path, str)
 
     # check that file is a comic archive
-    target_filename = os.path.split(target_file_path)[1]
-    file_extension = os.path.splitext(target_file_path)[1]
+    filename = os.path.split(file_path)[1]
+    extension = os.path.splitext(file_path)[1]
 
-    if not file_extension in HANDLED_EXTENSIONS:
-        print "Skipping %s. Not a comic archive" % target_filename
+    if not extension in HANDLED_EXTENSIONS:
+        print "Skipping %s. Not a comic archive" % filename
         return
 
-    print "Processing: %s" % target_filename
+    print "Processing: %s" % filename
 
     # look for the issue number and title
     filename_issue = ""
     filename_title = ""
 
-    match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', target_filename)
+    match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
     if match:
         filename_issue = match.group(1)
         filename_title = match.group(2)
     else:
-        match = re.search('\.c?(\d*)\.cbz|cbr', target_filename)
+        match = re.search('\.c?(\d*)\.cbz|cbr', filename)
         if match:
             filename_issue = match.group(1)
 
     if not match:
-        print "Could not locate a title or issue number in: %s" % target_filename
+        print "Could not locate a title or issue number in: %s" % filename
     else:
         if filename_issue != "":
             filename_issue = cleanFilenameIssue(filename_issue)
@@ -90,7 +90,7 @@ def processFile(target_file_path):
 
         if answer == "y":
             metadata_statement = produceComicTaggerMetaDataStatement(filename_issue, filename_title)
-            command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(target_file_path))
+            command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
 
             return_code = subprocess.call(command, shell=True)
             if return_code != 0:
@@ -113,24 +113,28 @@ def produceComicTaggerMetaDataStatement(issue, title):
     return ','.join(tags)
 
 
+# Main program method
+def MDTagger():
+    arguments = sys.argv
+
+    if len(arguments) < 2:  # the sys.argv[0] contains the script name, so there is always at least one argument
+        outputHelp()
+        quit()
+
+    folder_path = arguments[1]
+
+    if os.path.isdir(folder_path):
+        directory_list = os.listdir(folder_path)
+
+        for filename in directory_list:
+            file_path = os.path.join(folder_path, filename)
+
+            if os.path.isfile(file_path):
+                processFile(file_path)
+
+    elif os.path.isfile(folder_path):
+        processFile(folder_path)
+
+
 # Start of execution
-
-arguments = sys.argv
-
-if len(arguments) < 2:  # the sys.argv[0] contains the script name, so there is always at least one argument
-    outputHelp()
-    quit()
-
-supplied_path = arguments[1]
-
-if os.path.isdir(supplied_path):
-    directory_list = os.listdir(supplied_path)
-
-    for filename in directory_list:
-        full_file_path = os.path.join(supplied_path, filename)
-
-        if os.path.isfile(full_file_path):
-            processFile(full_file_path)
-
-elif os.path.isfile(supplied_path):
-    processFile(supplied_path)
+MDTagger()
