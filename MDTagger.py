@@ -45,6 +45,31 @@ def outputHelp():
     print ''
 
 
+def parseExistingTags(data):
+    assert isinstance(data, str)
+
+    # validate
+    start_index = data.find('------ComicRack tags--------')
+    if start_index == -1:
+        return []
+
+    data = data[data.find('\n', start_index) + 1:]
+
+    lines = data.splitlines()
+    tags = {}
+
+    for line in lines:
+        if line == '':
+            continue
+
+        pieces = line.split(':', 1)
+
+        if len(pieces) > 0 and pieces[1] != '':
+            tags[pieces[0]] = pieces[1].strip(' ')
+
+    return tags
+
+
 def processFile(file_path, auto_update):
     assert isinstance(file_path, str)
     assert isinstance(auto_update, bool)
@@ -83,19 +108,25 @@ def processFile(file_path, auto_update):
             filename_title = cleanFilenameTitle(filename_title)
             print "Found Title: %s" % filename_title
 
-        # todo: check existing tags and report/skip if there is no work to do
-        # command = '%s -p %s' % (COMIC_TAGGER_PATH, escape_spaces(full_file_path))
+        process = subprocess.Popen('%s -p %s' % (COMIC_TAGGER_PATH, escapeForShell(file_path)), stdout=subprocess.PIPE, shell=True)
+        existing_tags = parseExistingTags(process.stdout.read())
 
-        # Ask user for permission to modify
-        do_update = auto_update or raw_input("Update tags for this file? (y/n): ") == "y"
+        needs_update = \
+            (filename_issue != '' and (not 'issue' in existing_tags or (filename_issue != existing_tags['issue']))) or \
+            (filename_title != '' and (not 'title' in existing_tags or (filename_title != existing_tags['title'])))
 
-        if do_update:
-            metadata_statement = produceComicTaggerMetaDataStatement(filename_issue, filename_title)
-            command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
+        if needs_update:
+            do_update = auto_update or raw_input("Update tags for this file? (y/n): ") == "y"
 
-            return_code = subprocess.call(command, shell=True)
-            if return_code != 0:
-                print "Return code: %s" % return_code
+            if do_update:
+                metadata_statement = produceComicTaggerMetaDataStatement(filename_issue, filename_title)
+                command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
+
+                return_code = subprocess.call(command, shell=True)
+                if return_code != 0:
+                    print "Return code: %s" % return_code
+        else:
+            print 'Tags already match found data. Skipping archive.'
     print ""
 
 
