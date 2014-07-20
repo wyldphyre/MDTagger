@@ -9,4 +9,5 @@ Options:
  * -a : Using this option will run the script in auto update mode, where files are automatically updated.
 
 todo:
+* Update the help to cover the switches
 * Support existing tags other than Comic Rack
