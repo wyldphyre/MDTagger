@@ -37,11 +37,14 @@ def escapeForComicTagger(source):
 def outputHelp():
     # print 'Usage: ComicTagger [OPTION]... [FOLDER]'
     print ''
-    print 'Usage: ComicTagger [FOLDER]'
+    print 'Usage: ComicTagger [OPTIONS] [FILE|FOLDER]'
     print ''
     print 'A utility for detecting Issue and Titles from comic archives downloaded with manga_downloader (https://github.com/jiaweihli/manga_downloader), then inserting that information into the archive using ComicTagger'
     print ''
-    print 'The name of all files in the specified folder will be examined for issue number and title and then the user is asked if the data should be inserted'
+    print 'The name of all files in the specified folder, or the specified file, will be examined for issue number and title and then the user is asked if the data should be inserted'
+    print ''
+    print 'Options:'
+    print '-a  :  automatically updates comic archives without asking user for comfirmation'
     print ''
 
 
