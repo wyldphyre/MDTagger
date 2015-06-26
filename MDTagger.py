@@ -41,10 +41,10 @@ def outputHelp():
     print ''
     print 'A utility for detecting Issue and Titles from comic archives downloaded with manga_downloader (https://github.com/jiaweihli/manga_downloader), then inserting that information into the archive using ComicTagger'
     print ''
-    print 'The name of all files in the specified folder, or the specified file, will be examined for issue number and title and then the user is asked if the data should be inserted'
+    print 'The name of the specified file (or each file in a specified folder), will be examined for issue number and title and then the user is asked if the data should be inserted into the archive'
     print ''
     print 'Options:'
-    print '-a  :  automatically updates comic archives without asking user for comfirmation'
+    print '-a  :  automatically updates comic archives without asking user for confirmation'
     print ''
 
 
