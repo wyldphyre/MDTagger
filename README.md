@@ -15,7 +15,7 @@ If existing tags match the ones extracted from the file name then the archive wi
 
 **Options:**
 
-* -a : Using this option will run the script in auto update mode, where files are automatically updated.
+* `-a` : Using this option will run the script in auto update mode, where files are automatically updated.
 
 **todo:**
 
