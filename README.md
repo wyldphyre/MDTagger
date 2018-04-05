@@ -1,18 +1,21 @@
-MDTagger
-========
+# MDTagger
 
-A simple script to parse comic issue numbers and titles out of comic archives downloaded with the manga_downloader script (also on github), and then insert that information into the archive using ComicTagger.
+A simple script to parse comic issue numbers and titles out of comic archives downloaded with the manga_downloader script (also on GitHub), and then insert that information into the archive using ComicTagger.
 
 If existing tags match the ones extracted from the file name then the archive will not be updated.
 
-**Prerequisites**
-* [ComicTagger](https://code.google.com/p/comictagger/ "Comic Tagger") for examing and updating the archive files
+## Prerequisites
 
-**Limitations**
-* Currently only Comic Rack tags are recognised when examining archives, and only Comic Rack tags are inserted when updating archives.
+- [ComicTagger](https://code.google.com/p/comictagger/ "Comic Tagger") for examining and updating the archive files
 
-**Options:**
-* -a : Using this option will run the script in auto update mode, where files are automatically updated.
+## Limitations
 
-**todo:**
-* Support detecting and inserting tags other than Comic Rack 
+- Currently only Comic Rack tags are recognised when examining archives, and only Comic Rack tags are inserted when updating archives.
+
+## Command Line Options
+
+- `-a` : Using this option will run the script in auto update mode, where files are automatically updated.
+
+## To Do
+
+- Support detecting and inserting tags other than Comic Rack
