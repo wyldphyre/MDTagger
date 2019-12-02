@@ -53,7 +53,7 @@ def parseExistingTags(data):
     assert isinstance(data, str)
 
     # validate
-    start_index = data.find('------ComicRack tags--------')
+    start_index = data.find('------ ComicRack tags --------')
     if start_index == -1:
         return []
 
