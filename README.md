@@ -1,6 +1,6 @@
 # MDTagger
 
-A simple script to parse comic issue numbers and titles out of comic archives downloaded with the manga_downloader script (also on GitHub), and then insert that information into the archive using ComicTagger.
+A simple script to parse comic issue numbers and titles out of comic archives filenames, and then insert that information into the archive using ComicTagger.
 
 If existing tags match the ones extracted from the file name then the archive will not be updated.
 
