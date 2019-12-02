@@ -16,13 +16,17 @@ HANDLED_EXTENSIONS = ['.cbr', '.cbz']
 
 def cleanFilenameIssue(source):
     assert isinstance(source, str)
-    return source.lstrip('0')
+    return source.lstrip('ch').lstrip('0')
 
-
-def cleanFilenameTitle(source):
+def cleanFilenameArtist(source):
     assert isinstance(source, str)
-    return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
+    return source.lstrip('(').rstrip(')')
 
+def cleanFilenameSeries(source):
+    assert isinstance(source, str)
+    # return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
+    return source.replace('.', ' ').lstrip().rstrip()
+    
 
 def escapeForShell(source):
     assert isinstance(source, str)
@@ -87,28 +91,33 @@ def processFile(file_path, auto_update):
 
     print "Processing: %s" % filename
 
-    # look for the issue number and title
+    # look for the issue number and series
     filename_volume = ""
     filename_issue = ""
-    filename_title = ""
+    filename_series = ""
+    filename_artist = ""
 
     # look for volume and chapter match i.e. chiis.sweet.home.MangaHere.v005.c017.cbz
-    match = re.search('\.v(\d*)\.c(.*)\.cbz|cbr', filename)
+    # match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
+    # try to match with an artist name first
+    match = re.search('^(\(.*\))\s(.*)\s((?:ch\s*)?\d*)\s', filename)
     if match:
-        filename_volume = match.group(1)
-        filename_issue = match.group(2)
+        filename_artist = match.group(1)
+        filename_series = match.group(2)
+        filename_issue = match.group(3)
     else:
-        match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
+        # try to match just a series and issue number
+        match = re.search('^(.*)\s(\d*)\s', filename)
         if match:
-            filename_issue = match.group(1)
-            filename_title = match.group(2)
-        else:
-            match = re.search('\.c?(\d*)\.cbz|cbr', filename)
-            if match:
-                filename_issue = match.group(1)
+            filename_series = match.group(1)
+            filename_issue = match.group(2)
+    # else:
+    #     match = re.search('\.c?(\d*)\.cbz|cbr', filename)
+    #     if match:
+    #         filename_issue = match.group(1)
 
     if not match:
-        print "Could not locate a title or issue number in: %s" % filename
+        print "Could not locate a series or issue number in: %s" % filename
     else:
         if filename_volume != "":
             filename_volume = cleanFilenameIssue(filename_volume)
@@ -118,23 +127,28 @@ def processFile(file_path, auto_update):
             filename_issue = cleanFilenameIssue(filename_issue)
             print "Found Issue: %s" % filename_issue
 
-        if filename_title != "":
-            filename_title = cleanFilenameTitle(filename_title)
-            print "Found Title: %s" % filename_title
+        if filename_series != "":
+            filename_series = cleanFilenameSeries(filename_series)
+            print "Found Title: %s" % filename_series
+
+        if filename_artist != "":
+            filename_artist = cleanFilenameArtist(filename_artist)
+            print "Found Artist: %s" % filename_artist
 
         process = subprocess.Popen('%s -p %s' % (COMIC_TAGGER_PATH, escapeForShell(file_path)), stdout=subprocess.PIPE, shell=True)
         existing_tags = parseExistingTags(process.stdout.read())
 
         needs_update = \
             (filename_issue != '' and (not 'issue' in existing_tags or (filename_issue != existing_tags['issue']))) or \
-            (filename_title != '' and (not 'title' in existing_tags or (filename_title != existing_tags['title']))) or \
-            (filename_volume != '' and (not 'volume' in existing_tags or (filename_volume != existing_tags['volume'])))
+            (filename_series != '' and (not 'series' in existing_tags or (filename_series.lower() != existing_tags['series'].lower()))) or \
+            (filename_volume != '' and (not 'volume' in existing_tags or (filename_volume != existing_tags['volume']))) or \
+            (filename_artist != '' and (not 'credit' in existing_tags or not filename_artist in existing_tags['credit']))
 
         if needs_update:
             do_update = auto_update or raw_input("Update tags for this file? (y/n): ") == "y"
 
             if do_update:
-                metadata_statement = produceComicTaggerMetaDataStatement(filename_volume, filename_issue, filename_title)
+                metadata_statement = produceComicTaggerMetaDataStatement(filename_volume, filename_issue, filename_series, filename_artist)
                 command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
 
                 return_code = subprocess.call(command, shell=True)
@@ -145,9 +159,9 @@ def processFile(file_path, auto_update):
     print ""
 
 
-def produceComicTaggerMetaDataStatement(volume, issue, title):
+def produceComicTaggerMetaDataStatement(volume, issue, series, artist):
     assert isinstance(issue, str)
-    assert isinstance(title, str)
+    assert isinstance(series, str)
 
     tags = []
 
@@ -157,8 +171,11 @@ def produceComicTaggerMetaDataStatement(volume, issue, title):
     if issue != "":
         tags.append("issue=%s" % issue)
 
-    if title != "":
-        tags.append("title=%s" % escapeForComicTagger(title))
+    if series != "":
+        tags.append("series=%s" % escapeForComicTagger(series))
+
+    if artist != "":
+        tags.append("credit=Artist:%s" % artist)
 
     return ','.join(tags)
 
