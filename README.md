@@ -18,4 +18,4 @@ If existing tags match the ones extracted from the file name then the archive wi
 
 ## To Do
 
-- Support detecting and inserting tags other than Comic Rack
+The script is currently complete for my needs.

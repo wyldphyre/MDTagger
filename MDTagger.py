@@ -18,6 +18,10 @@ def cleanFilenameIssue(source):
     assert isinstance(source, str)
     return source.lstrip('ch').lstrip('0')
 
+def cleanFilenameVolume(source):
+    assert isinstance(source, str)
+    return source.lstrip('v').lstrip('0')
+
 def cleanFilenameArtist(source):
     assert isinstance(source, str)
     return source.lstrip('(').rstrip(')')
@@ -112,16 +116,16 @@ def processFile(file_path, auto_update):
         if match:
             filename_series = match.group(1)
             filename_issue = match.group(2)
-    # else:
-    #     match = re.search('\.c?(\d*)\.cbz|cbr', filename)
-    #     if match:
-    #         filename_issue = match.group(1)
+        else:
+            match = re.search('\s?v(\d*)\s?', filename)
+            if match:
+                filename_volume = match.group(1)
 
     if not match:
         print "Could not locate a series or issue number in: %s" % filename
     else:
         if filename_volume != "":
-            filename_volume = cleanFilenameIssue(filename_volume)
+            filename_volume = cleanFilenameVolume(filename_volume)
             print "Found Volume: %s" % filename_volume
 
         if filename_issue != "":
