@@ -11,7 +11,7 @@ import titlecase
 
 # COMIC_TAGGER_PATH = 'COMIC_TAGGER_PATH/Applications/ComicTagger.app/Contents/MacOS/ComicTagger'
 COMIC_TAGGER_PATH = 'ComicTagger'  # and alias that points to the full path above
-HANDLED_EXTENSIONS = ['.cbr', '.cbz']
+HANDLED_EXTENSIONS = ['.cbr', '.cbz', '.zip']
 
 
 def cleanFilenameIssue(source):
