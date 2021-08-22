@@ -18,4 +18,4 @@ If existing tags match the ones extracted from the file name then the archive wi
 
 ## To Do
 
-The script is currently complete for my needs.
+- Enhance the volume matching to find the series at the same time
