@@ -30,7 +30,7 @@ def cleanFilenameSeries(source):
 
 def escapeForShell(source):
     assert isinstance(source, str)
-    return source.replace(' ', '\ ').replace('(', '\(').replace(')', '\)')
+    return source.replace(' ', '\ ').replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
     # should perhaps be using 'r' to make raw strings in order to avoid the pylint comments on the above (and elsewhere)
 
 
