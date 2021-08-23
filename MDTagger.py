@@ -140,7 +140,7 @@ def processFile(file_path, auto_update):
 
         if filename_series != "":
             filename_series = cleanFilenameSeries(filename_series)
-            print "Found Title: %s" % filename_series
+            print "Found Series: %s" % filename_series
 
         if filename_artist != "":
             filename_artist = cleanFilenameArtist(filename_artist)
