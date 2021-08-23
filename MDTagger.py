@@ -112,7 +112,7 @@ def processFile(file_path, auto_update):
         filename_issue = match.group(3)
     else:
         # try to match just a series and issue number with 'ch' prefix
-        match = re.search('^(.*)\s((?:ch\s*)?\d*)\s', filename)
+        match = re.search('^(.*)\s((?:ch\s*)?\d*)', filename)
         if match:
             filename_series = match.group(1)
             filename_issue = match.group(2)
