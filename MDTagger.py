@@ -102,6 +102,11 @@ def processFile(file_path, auto_update):
     filename_series = ""
     filename_artist = ""
 
+    # try to volume
+    match = re.search('\s?v(\d*)\s?', filename)
+    if match:
+        filename_volume = match.group(1)
+
     # look for volume and chapter match i.e. chiis.sweet.home.MangaHere.v005.c017.cbz
     # match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
     # try to match with an artist name first
@@ -122,11 +127,7 @@ def processFile(file_path, auto_update):
             if match:
                 filename_series = match.group(1)
                 filename_issue = match.group(2)
-            else:
-                match = re.search('\s?v(\d*)\s?', filename)
-                if match:
-                    filename_volume = match.group(1)
-
+        
     if not match:
         print "Could not locate a series or issue number in: %s" % filename
     else:
