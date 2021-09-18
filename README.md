@@ -18,4 +18,4 @@ If existing tags match the ones extracted from the file name then the archive wi
 
 ## To Do
 
-- Enhance the volume matching to find the series at the same time
+- Really need to overhaul the filename parsing to be more reliable and to be able to cope with more scenarios

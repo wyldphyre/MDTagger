@@ -10,7 +10,7 @@ import titlecase
 
 
 # COMIC_TAGGER_PATH = 'COMIC_TAGGER_PATH/Applications/ComicTagger.app/Contents/MacOS/ComicTagger'
-COMIC_TAGGER_PATH = 'ComicTagger'  # and alias that points to the full path above
+COMIC_TAGGER_PATH = 'ComicTagger.exe'  # on a mac this should be an alias that points to the full path above. On Window, put exe in PATH variable
 HANDLED_EXTENSIONS = ['.cbr', '.cbz', '.zip']
 
 
@@ -63,7 +63,9 @@ def parseExistingTags(data):
     # validate
     start_index = data.find('------ ComicRack tags --------')
     if start_index == -1:
-        return []
+        start_index = data.find('--------- CommicRack tags ---------')
+        if start_index == -1:
+            return []
 
     data = data[data.find('\n', start_index) + 1:]
 
@@ -147,8 +149,19 @@ def processFile(file_path, auto_update):
             filename_artist = cleanFilenameArtist(filename_artist)
             print("Found Artist: %s" % filename_artist)
 
-        process = subprocess.Popen('%s -p %s' % (COMIC_TAGGER_PATH, escapeForShell(file_path)), stdout=subprocess.PIPE, shell=True)
-        existing_tags = parseExistingTags(process.stdout.read())
+        is_windows = os.name == 'nt'
+
+        if is_windows:
+            comic_tagger_args = '"%s" -p "%s"' % (COMIC_TAGGER_PATH, file_path)
+        else:
+            comic_tagger_args = '%s -p %s' % (COMIC_TAGGER_PATH, escapeForShell(file_path))
+        
+        #print(comic_tagger_args)
+
+        data = subprocess.run(args=comic_tagger_args, capture_output=True, text=True)
+
+        #process = subprocess.Popen('%s -p %s' % (COMIC_TAGGER_PATH, escapeForShell(file_path)), stdout=subprocess.PIPE, shell=True)
+        existing_tags = parseExistingTags(data.stdout)
 
         needs_update = \
             (filename_issue != '' and (not 'issue' in existing_tags or (filename_issue != existing_tags['issue']))) or \
@@ -161,7 +174,11 @@ def processFile(file_path, auto_update):
 
             if do_update:
                 metadata_statement = produceComicTaggerMetaDataStatement(filename_volume, filename_issue, filename_series, filename_artist)
-                command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
+
+                if is_windows:
+                    command = '"%s" -s -m "%s" -t cr "%s"' % (COMIC_TAGGER_PATH, metadata_statement, file_path)
+                else:
+                    command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
 
                 return_code = subprocess.call(command, shell=True)
                 if return_code != 0:
