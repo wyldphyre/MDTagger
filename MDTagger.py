@@ -45,16 +45,16 @@ def escapeForComicTagger(source):
 
 def outputHelp():
     # print 'Usage: ComicTagger [OPTION]... [FOLDER]'
-    print ''
-    print 'Usage: ComicTagger [OPTIONS] [FILE|FOLDER]'
-    print ''
-    print 'A utility for detecting Issue and Series from comic archives filenames, then inserting that information into the archive using ComicTagger'
-    print ''
-    print 'The name of the specified file (or each file in a specified folder), will be examined for issue number and title and then the user is asked if the data should be inserted into the archive'
-    print ''
-    print 'Options:'
-    print '-a  :  automatically updates comic archives without asking user for confirmation'
-    print ''
+    print('')
+    print('Usage: ComicTagger [OPTIONS] [FILE|FOLDER]')
+    print('')
+    print('A utility for detecting Issue and Series from comic archives filenames, then inserting that information into the archive using ComicTagger')
+    print('')
+    print('The name of the specified file (or each file in a specified folder), will be examined for issue number and title and then the user is asked if the data should be inserted into the archive')
+    print('')
+    print('Options:')
+    print('-a  :  automatically updates comic archives without asking user for confirmation')
+    print('')
 
 
 def parseExistingTags(data):
@@ -91,10 +91,10 @@ def processFile(file_path, auto_update):
     extension = os.path.splitext(file_path)[1]
 
     if not extension in HANDLED_EXTENSIONS:
-        print "Skipping %s. Not a comic archive" % filename
+        print("Skipping %s. Not a comic archive" % filename)
         return
 
-    print "Processing: %s" % filename
+    print("Processing: %s" % filename)
 
     # look for the issue number and series
     filename_volume = ""
@@ -129,23 +129,23 @@ def processFile(file_path, auto_update):
                 filename_issue = match.group(2)
         
     if not match:
-        print "Could not locate a series or issue number in: %s" % filename
+        print("Could not locate a series or issue number in: %s" % filename)
     else:
         if filename_volume != "":
             filename_volume = cleanFilenameVolume(filename_volume)
-            print "Found Volume: %s" % filename_volume
+            print("Found Volume: %s" % filename_volume)
 
         if filename_issue != "":
             filename_issue = cleanFilenameIssue(filename_issue)
-            print "Found Issue: %s" % filename_issue
+            print("Found Issue: %s" % filename_issue)
 
         if filename_series != "":
             filename_series = cleanFilenameSeries(filename_series)
-            print "Found Series: %s" % filename_series
+            print("Found Series: %s" % filename_series)
 
         if filename_artist != "":
             filename_artist = cleanFilenameArtist(filename_artist)
-            print "Found Artist: %s" % filename_artist
+            print("Found Artist: %s" % filename_artist)
 
         process = subprocess.Popen('%s -p %s' % (COMIC_TAGGER_PATH, escapeForShell(file_path)), stdout=subprocess.PIPE, shell=True)
         existing_tags = parseExistingTags(process.stdout.read())
@@ -157,7 +157,7 @@ def processFile(file_path, auto_update):
             (filename_artist != '' and (not 'credit' in existing_tags or not filename_artist in existing_tags['credit']))
 
         if needs_update:
-            do_update = auto_update or raw_input("Update tags for this file? (y/n): ") == "y"
+            do_update = auto_update or input("Update tags for this file? (y/n): ") == "y"
 
             if do_update:
                 metadata_statement = produceComicTaggerMetaDataStatement(filename_volume, filename_issue, filename_series, filename_artist)
@@ -165,10 +165,10 @@ def processFile(file_path, auto_update):
 
                 return_code = subprocess.call(command, shell=True)
                 if return_code != 0:
-                    print "Return code: %s" % return_code
+                    print("Return code: %s" % return_code)
         else:
-            print 'Tags already match found data. Skipping archive.'
-    print ""
+            print('Tags already match found data. Skipping archive.')
+    print("")
 
 
 def produceComicTaggerMetaDataStatement(volume, issue, series, artist):
@@ -208,17 +208,17 @@ def MDTagger():
             if param == '-a':
                 auto_update = True
             else:
-                print "Unknown options %s" % param
+                print("Unknown options %s" % param)
                 quit()
         else:
             if path != "":
-                print "Only one file or folder path can be specified"
+                print("Only one file or folder path can be specified")
                 quit()
             else:
                 path = param
 
     if path == "":
-        print "You must specify a file or folder to operate on"
+        print("You must specify a file or folder to operate on")
         quit()
 
     if os.path.isdir(path):
