@@ -118,17 +118,24 @@ def processFile(file_path, auto_update):
         filename_series = match.group(2)
         filename_issue = match.group(3)
     else:
-        # try to match just a series and issue number with 'ch' prefix
-        match = re.search('^(.*)\s((?:ch\s*)?\d*)', filename)
+        # try to match a series, volume and chapter number with 'ch' prefix
+        match = re.search('^(.*)\s(?:v|vol\s*)+(\d+)\s*((?:ch\s*)?(?:\d*\.)?\d*)', filename)
         if match:
             filename_series = match.group(1)
-            filename_issue = match.group(2)
+            filename_volume = match.group(2)
+            filename_issue  = match.group(3)
         else:
-            # try to match just a series and issue number without 'ch' prefix
-            match = re.search('^(.*)\s(\d*)\s', filename)
+            # try to match just a series and issue number with 'ch' prefix
+            match = re.search('^(.*)\s((?:ch\s*)?\d*)', filename)
             if match:
                 filename_series = match.group(1)
                 filename_issue = match.group(2)
+            else:
+                # try to match just a series and issue number without 'ch' prefix
+                match = re.search('^(.*)\s(\d*)\s', filename)
+                if match:
+                    filename_series = match.group(1)
+                    filename_issue = match.group(2)
         
     if not match:
         print("Could not locate a series or issue number in: %s" % filename)
