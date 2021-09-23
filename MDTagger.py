@@ -89,8 +89,8 @@ def processFile(file_path, auto_update):
     assert isinstance(auto_update, bool)
 
     # check that file is a comic archive
-    filename = os.path.split(file_path)[1]
     extension = os.path.splitext(file_path)[1]
+    filename = os.path.split(file_path)[1].replace(extension, '')
 
     if not extension in HANDLED_EXTENSIONS:
         print("Skipping %s. Not a comic archive" % filename)
