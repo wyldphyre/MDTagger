@@ -30,6 +30,10 @@ def cleanFilenameSeries(source):
     assert isinstance(source, str)
     # return titlecase.titlecase(source.replace('.', ' ').lstrip().rstrip())
     return source.replace('.', ' ').lstrip().rstrip()
+
+def cleanFilenameChapterName(source):
+    assert isinstance(source, str)
+    return source.lstrip(' ').rstrip(' ')
     
 
 def escapeForShell(source):
@@ -103,23 +107,29 @@ def processFile(file_path, auto_update):
     filename_issue = ""
     filename_series = ""
     filename_artist = ""
+    filename_chapter_name = ""
 
-    # try to volume
-    match = re.search('\s?v(\d*)\s?', filename)
+    # try to find volume
+    match = re.search('\s{1}([vV]ol|[vV])\s?(\d*)\s{1}', filename)
     if match:
-        filename_volume = match.group(1)
+        filename_volume = match.group(2)
+
+    # try to find chapter name
+    match = re.search('(?:\d\s*-\s*)(.*)$', filename)
+    if match:
+        filename_chapter_name = match.group(1)
 
     # look for volume and chapter match i.e. chiis.sweet.home.MangaHere.v005.c017.cbz
     # match = re.search('\.(\d*)\.\.(.*)\.cbz|cbr', filename)
     # try to match with an artist name first
-    match = re.search('^(\(.*\))\s(.*)\s((?:ch\s*)?\d*)\s', filename)
+    match = re.search('^(\(.*\))\s(.*)\s((?:ch\s*)?\d*)', filename)
     if match:
         filename_artist = match.group(1)
         filename_series = match.group(2)
         filename_issue = match.group(3)
     else:
         # try to match a series, volume and chapter number with 'ch' prefix
-        match = re.search('^(.*)\s(?:v|vol\s*)+(\d+)\s*((?:ch\s*)?(?:\d*\.)?\d*)', filename)
+        match = re.search('^(.*)\s(?:v|vol\s*)+(\d+)\s*((?:[cC]h\s?)?(?:\d*\.)?\d*)', filename)
         if match:
             filename_series = match.group(1)
             filename_volume = match.group(2)
@@ -156,6 +166,10 @@ def processFile(file_path, auto_update):
             filename_artist = cleanFilenameArtist(filename_artist)
             print("Found Artist: %s" % filename_artist)
 
+        if filename_chapter_name != "":
+            filename_chapter_name = cleanFilenameChapterName(filename_chapter_name)
+            print("Found Chapter Name: %s" % filename_chapter_name)
+
         is_windows = os.name == 'nt'
 
         if is_windows:
@@ -174,18 +188,21 @@ def processFile(file_path, auto_update):
             (filename_issue != '' and (not 'issue' in existing_tags or (filename_issue != existing_tags['issue']))) or \
             (filename_series != '' and (not 'series' in existing_tags or (filename_series.lower() != existing_tags['series'].lower()))) or \
             (filename_volume != '' and (not 'volume' in existing_tags or (filename_volume != existing_tags['volume']))) or \
-            (filename_artist != '' and (not 'credit' in existing_tags or not filename_artist in existing_tags['credit']))
+            (filename_artist != '' and (not 'credit' in existing_tags or not filename_artist in existing_tags['credit'])) or \
+            (filename_chapter_name != '' and (not 'title' in existing_tags or not filename_chapter_name in existing_tags['title']))
 
         if needs_update:
             do_update = auto_update or input("Update tags for this file? (y/n): ") == "y"
 
             if do_update:
-                metadata_statement = produceComicTaggerMetaDataStatement(filename_volume, filename_issue, filename_series, filename_artist)
+                metadata_statement = produceComicTaggerMetaDataStatement(filename_volume, filename_issue, filename_series, filename_artist, filename_chapter_name)
 
                 if is_windows:
                     command = '"%s" -s -m "%s" -t cr "%s"' % (COMIC_TAGGER_PATH, metadata_statement, file_path)
                 else:
                     command = '%s -s -m "%s" -t cr %s' % (COMIC_TAGGER_PATH, metadata_statement, escapeForShell(file_path))
+
+                print('command: %s' % command)
 
                 return_code = subprocess.call(command, shell=True)
                 if return_code != 0:
@@ -195,7 +212,7 @@ def processFile(file_path, auto_update):
     print("")
 
 
-def produceComicTaggerMetaDataStatement(volume, issue, series, artist):
+def produceComicTaggerMetaDataStatement(volume, issue, series, artist, chapter_name):
     assert isinstance(issue, str)
     assert isinstance(series, str)
 
@@ -212,6 +229,9 @@ def produceComicTaggerMetaDataStatement(volume, issue, series, artist):
 
     if artist != "":
         tags.append("credit=Artist:%s" % artist)
+
+    if chapter_name != "":
+        tags.append("title=%s" % chapter_name)
 
     return ','.join(tags)
 
