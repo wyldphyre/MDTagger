@@ -16,7 +16,7 @@ HANDLED_EXTENSIONS = ['.cbr', '.cbz', '.zip']
 
 def cleanFilenameIssue(source):
     assert isinstance(source, str)
-    return source.lstrip('ch').lstrip(' ').lstrip('0')
+    return source.lstrip('ch').lstrip('Ch').lstrip('.').lstrip(' ').lstrip('0')
 
 def cleanFilenameVolume(source):
     assert isinstance(source, str)
