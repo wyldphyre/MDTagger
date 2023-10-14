@@ -110,7 +110,7 @@ def processFile(file_path, auto_update):
     filename_chapter_name = ""
 
     # try to find volume
-    match = re.search('\s{1}([vV]ol|[vV])\s?(\d*)\s{1}', filename)
+    match = re.search('\s{1}([vV]ol\.?|[vV])\s?(\d*)\s{1}', filename)
     if match:
         filename_volume = match.group(2)
 
@@ -129,7 +129,7 @@ def processFile(file_path, auto_update):
         filename_issue = match.group(3)
     else:
         # try to match a series, volume and chapter number with 'ch' prefix
-        match = re.search('^(.*)\s(?:v|vol\s*)+(\d+)\s*((?:[cC]h\s?)?(?:\d*\.)?\d*)', filename)
+        match = re.search('^(.*)\s(?:v|vol\s*|V|Vol)+\.?(\d+)\s*((?:[cC]h\s?)?(?:\d*\.)?\d*)', filename)
         if match:
             filename_series = match.group(1)
             filename_volume = match.group(2)
